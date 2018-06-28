@@ -3,11 +3,40 @@
 #include <string.h>
 
 #define DISK_NAME "disk"
-#define DISK_SIZE "1024000"       //1M
+#define DISK_SIZE "1024000"             //1M
+
+#define BEGIN_METADATA          0
+#define END_METADATA            49      // 50B
+#define BEGIN_FREE_SPACE        50
+#define END_FREE_SPACE          99      // 50B
+#define BEGIN_INODE             100
+#define END_INODE               2099    // 2KB
+#define BEGIN_BLOCK             2100
+#define END_BLOCK               2599    // 500B
+#define BEGIN_INODEMAP          2600
+#define END_INODEMAP            2649    // 50B
+
+#define INODE_MAX               50      // 50
+#define INODE_BYTE              40      // 40B
+#define INODE_LENGTH            2       // 1 - 50 
+
+#define INODE_PARENT            0
+#define INODE_ID                2
+#define INODE_ID_SIZE           2
+#define INODE_NAME              4
+#define INODE_NAME_SIZE         20
+#define INODE_DATE              24
+#define INODE_BLOCK             32       
 
 char *disk;
-char *size;
+char *size;                             // 2600B
+char *metadataInit;
 
 int nextPosition(char *disk);
+int positionMap(char *disk , int posBegin, int posEnd);
+void bootLoader(char *disk);
 void setPosition(char *disk);
-void createFile(char *disk, char *file);
+void createDir(char *disk, char *path);
+void createFile(char *disk, char *file_name);
+
+int checkDir(char *disk, char *path);
