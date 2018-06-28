@@ -66,7 +66,7 @@ int main(int argc, char *argv[]){
    }
 
     bootLoader(disk);
-    createDir(disk, "raiz/user");
+    createDir(disk, "home/user");
        
 }
 
@@ -94,6 +94,13 @@ void bootLoader(char *disk){
         fseek(fp, BEGIN_INODE+INODE_DATE, SEEK_SET);
         fputs("10102010",fp);
         fseek(fp, BEGIN_INODE+INODE_BLOCK, SEEK_SET);
+        fputs("00000000",fp);
+
+        fseek(fp, BEGIN_INODE+INODE_BYTE, SEEK_SET);
+        fputs("0102home",fp);
+        fseek(fp, BEGIN_INODE+INODE_BYTE+INODE_DATE, SEEK_SET);
+        fputs("10112010",fp);
+        fseek(fp, BEGIN_INODE+INODE_BYTE+INODE_BLOCK, SEEK_SET);
         fputs("00000000",fp);
         fclose(fp);
     } else {
@@ -140,17 +147,21 @@ int positionMap(char *disk , int posBegin, int posEnd){
 void createDir(char *disk, char *path){
 
     int pos;
-    int teste;
-    char inode_id[INODE_LENGTH];
+    char *inode_id;
 
     pos = positionMap(disk, BEGIN_INODEMAP, END_INODEMAP);
 
-    teste = BEGIN_INODE + (pos * INODE_BYTE);
-    sprintf(inode_id, "%02d", pos + 1);
+    //teste = BEGIN_INODE + (pos * INODE_BYTE);
+    //sprintf(inode_id, "%02d", pos + 1);
 
-    fprintf(stderr, "dir_inode_id: %s\n", checkDir(disk, path));
+    inode_id = checkDir(disk, path);
 
-
+    if(inode_id == "00"){
+        printf("This directory does not exist!\n");
+    } else{
+        printf("Found directory\n");
+        fprintf(stderr, "dir_inode_id: %s\n", inode_id);
+    }
 
     // if(fp != NULL){
     //     // fseek(fp, teste, SEEK_SET);
@@ -181,20 +192,19 @@ char *checkDir(char *disk, char *path){
 
     if(cont == 1){
         return "01";
-    } else {
-
+    } else {        
         FILE *fp;
         fp = fopen(disk, "rb+");
 
         ptr = strdup(path);
         if(token = strsep(&ptr, delimiters)){
-            dir = token;
+            dir = token;            
             
-            for(int i=BEGIN_INODE; i<=END_INODE; i+40){
+            for(int i=BEGIN_INODE; i<=END_INODE; i+=40){
                 fseek(fp, i + INODE_NAME, SEEK_SET);
                 fgets(dir_name, INODE_NAME_SIZE, fp);
 
-                if(!strcmp(dir_name, dir)){
+                if(!strcmp(dir_name, dir)){                    
                     fseek(fp, i + INODE_ID, SEEK_SET);
                     fgets(dir_inode_id, INODE_ID_SIZE+1, fp);
 
@@ -206,7 +216,7 @@ char *checkDir(char *disk, char *path){
             }
 
             fclose(fp);
-            return "01";
+            return "00";
         }
     }
 
