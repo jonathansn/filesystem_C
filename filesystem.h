@@ -39,4 +39,4 @@ void setPosition(char *disk);
 void createDir(char *disk, char *path);
 void createFile(char *disk, char *file_name);
 
-int checkDir(char *disk, char *path);
+char *checkDir(char *disk, char *path);

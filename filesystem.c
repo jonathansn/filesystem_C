@@ -148,16 +148,11 @@ void createDir(char *disk, char *path){
     teste = BEGIN_INODE + (pos * INODE_BYTE);
     sprintf(inode_id, "%02d", pos + 1);
 
-    printf("inode_dir: %d\n", checkDir(disk, path));
+    fprintf(stderr, "dir_inode_id: %s\n", checkDir(disk, path));
 
 
 
     // if(fp != NULL){
-
-        
-
-
-
     //     // fseek(fp, teste, SEEK_SET);
     //     // fputs(inode_id, fp);                 // inode_id 
 
@@ -167,7 +162,7 @@ void createDir(char *disk, char *path){
     // }
 }
 
-int checkDir(char *disk, char *path){
+char *checkDir(char *disk, char *path){
 
     char *token;
     char delimiters[] = "/";
@@ -176,8 +171,8 @@ int checkDir(char *disk, char *path){
     int cont=0;
     char *dir;
     char *dir_name;
-    char dir_inode_id[INODE_ID_SIZE];
-    int inode_id;
+    char *dir_inode_id = malloc(sizeof(char) * INODE_ID_SIZE);
+    char *teste;
 
     ptr = strdup(path);
     while((token = strsep(&ptr, delimiters)) != NULL){
@@ -185,7 +180,7 @@ int checkDir(char *disk, char *path){
     }
 
     if(cont == 1){
-        return 1;
+        return "01";
     } else {
 
         FILE *fp;
@@ -201,17 +196,17 @@ int checkDir(char *disk, char *path){
 
                 if(!strcmp(dir_name, dir)){
                     fseek(fp, i + INODE_ID, SEEK_SET);
-                    fgets(dir_inode_id, 2, fp);
-                    //puts(dir_inode_id);
-                    //inode_id = atoi(dir_inode_id);
+                    fgets(dir_inode_id, INODE_ID_SIZE+1, fp);
+
+                    strtok(dir_inode_id, "\n");
 
                     fclose(fp);
-                    return inode_id;
+                    return dir_inode_id;
                 }
             }
 
             fclose(fp);
-            return 1;
+            return "01";
         }
     }
 
