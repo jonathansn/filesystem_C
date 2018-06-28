@@ -66,7 +66,7 @@ int main(int argc, char *argv[]){
    }
 
     bootLoader(disk);
-    createDir(disk, "home/user");
+    createDir(disk, "raiz/user");
        
 }
 
@@ -94,13 +94,6 @@ void bootLoader(char *disk){
         fseek(fp, BEGIN_INODE+INODE_DATE, SEEK_SET);
         fputs("10102010",fp);
         fseek(fp, BEGIN_INODE+INODE_BLOCK, SEEK_SET);
-        fputs("00000000",fp);
-
-        fseek(fp, BEGIN_INODE+INODE_BYTE, SEEK_SET);
-        fputs("0102home",fp);
-        fseek(fp, BEGIN_INODE+INODE_BYTE+INODE_DATE, SEEK_SET);
-        fputs("10112010",fp);
-        fseek(fp, BEGIN_INODE+INODE_BYTE+INODE_BLOCK, SEEK_SET);
         fputs("00000000",fp);
         fclose(fp);
     } else {
@@ -147,30 +140,49 @@ int positionMap(char *disk , int posBegin, int posEnd){
 void createDir(char *disk, char *path){
 
     int pos;
+    char *parent_inode;
+    char *inode_address;
+    int address;
     char *inode_id;
+    int tmp;
 
     pos = positionMap(disk, BEGIN_INODEMAP, END_INODEMAP);
 
-    //teste = BEGIN_INODE + (pos * INODE_BYTE);
-    //sprintf(inode_id, "%02d", pos + 1);
+    parent_inode = checkDir(disk, path);
 
-    inode_id = checkDir(disk, path);
-
-    if(inode_id == "00"){
+    if(parent_inode == "00"){
         printf("This directory does not exist!\n");
-    } else{
+    } else {
+
         printf("Found directory\n");
-        fprintf(stderr, "dir_inode_id: %s\n", inode_id);
+        fprintf(stderr, "parent_inode: %s\n", parent_inode);
+        inode_address = checkInodeMap(disk);
+        fprintf(stderr, "inode_adress: %s\n", inode_address);
+        tmp = atoi(inode_address);
+        tmp = tmp - BEGIN_INODE + 1;
+        sprintf(inode_id, "%02d", tmp);
+        printf("inode_id: %s\n", inode_id);
+
+        // FILE *fp;
+        // fp = fopen(disk, "rb+");
+            
+        //     // address = atoi(inode_address);
+
+        //     // fseek(fp, address, SEEK_SET);
+        //     // fputs(parent_inode, fp);                            // parent_inode
+        //     // fseek(fp, address + INODE_ID, SEEK_SET);
+        //     // fputs(inode_id, fp);                                // inode_id
+        //     // fseek(fp, address + INODE_NAME, SEEK_SET);
+        //     // fputs("pasta5", fp);                                // inode_name
+        //     // fseek(fp, address + INODE_DATE, SEEK_SET);
+        //     // fputs("25011991", fp);                                // inode_name
+        //     // fseek(fp, address + INODE_BLOCK, SEEK_SET);
+        //     // fputs("00000000",fp);
+
+        // fclose(fp);
+
     }
 
-    // if(fp != NULL){
-    //     // fseek(fp, teste, SEEK_SET);
-    //     // fputs(inode_id, fp);                 // inode_id 
-
-    //     // fclose(fp);
-    // } else {
-    //     printf("Error while trying to create file!\n");
-    // }
 }
 
 char *checkDir(char *disk, char *path){
@@ -191,6 +203,7 @@ char *checkDir(char *disk, char *path){
     }
 
     if(cont == 1){
+        printf("Root directory\n");
         return "01";
     } else {        
         FILE *fp;
@@ -221,4 +234,24 @@ char *checkDir(char *disk, char *path){
     }
 
     free(ptr);
+}
+
+char *checkInodeMap(char *disk){
+
+    FILE *fp;
+    fp = fopen(disk, "rb+");
+
+    char *inode_address = malloc(sizeof(char) * INODE_ID_SIZE);
+
+    for(int i=BEGIN_INODEMAP; i<=END_INODEMAP; i++){
+        fseek(fp, i, SEEK_SET);
+        fgets(inode_address, 2, fp);
+        if(!strcmp(inode_address, "0")){            
+            fclose(fp);
+            i = i - BEGIN_INODEMAP + BEGIN_INODE;
+            sprintf(inode_address, "%d", i);
+            return inode_address;
+        }
+    }
+
 }

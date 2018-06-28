@@ -17,6 +17,7 @@
 #define END_INODEMAP            2649    // 50B
 
 #define INODE_MAX               50      // 50
+#define INODE_SIZE              2000    // 2KB
 #define INODE_BYTE              40      // 40B
 #define INODE_LENGTH            2       // 1 - 50 
 
@@ -26,7 +27,9 @@
 #define INODE_NAME              4
 #define INODE_NAME_SIZE         20
 #define INODE_DATE              24
-#define INODE_BLOCK             32       
+#define INODE_BLOCK             32
+
+#define INODE_MAP_MAX           50          
 
 char *disk;
 char *size;                             // 2600B
@@ -40,3 +43,4 @@ void createDir(char *disk, char *path);
 void createFile(char *disk, char *file_name);
 
 char *checkDir(char *disk, char *path);
+char *checkInodeMap(char *disk);
