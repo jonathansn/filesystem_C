@@ -2,6 +2,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <string.h>
+#include "p_reader.h"
 
 #define DISK_NAME "disk"
 #define DISK_SIZE "1024000"             //1M

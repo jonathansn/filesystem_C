@@ -69,25 +69,14 @@ int main(int argc, char *argv[]){
 
     // trocar para receber comandos (PIPE)
 
-    if(createDir(disk, "raiz/home") == 1){
-        printf("Directory created successfully!\n");
-    } else {
-        printf("Error while trying to create directory!\n");
-    }
 
-    if(createFile(disk, "home/teste.txt", "abcdef") == 1){
-        printf("File created successfully!\n");
-    } else {
-        printf("Error while trying to create file!\n");
-    }
+    while(1){
+        pthread_create(&tId[0], NULL, pipeReaderDir, NULL);
+        pthread_create(&tId[1], NULL, pipeReaderFile, NULL);
 
-    if(createFile(disk, "home/teste1.txt", "testando") == 1){
-        printf("File created successfully!\n");
-    } else {
-        printf("Error while trying to create file!\n");
+        pthread_join(tId[0], NULL);
+        pthread_join(tId[1], NULL);
     }
-
-    //
        
 }
 
@@ -116,6 +105,15 @@ void bootLoader(char *disk){
         fputs("10102010",fp);
         fseek(fp, BEGIN_INODE+INODE_BLOCK1, SEEK_SET);
         fputs("00000000",fp);
+
+
+        fseek(fp, BEGIN_FREE_SPACE + 1, SEEK_SET);
+        fputs("1",fp);
+        fseek(fp, BEGIN_BLOCK + BLOCK_SIZE, SEEK_SET);
+        fputs("BlocoFixo",fp);
+        
+
+
         fclose(fp);
     } else {
         printf("Error while trying to open disk!\n");
@@ -401,9 +399,9 @@ void writeFile(char *file_name, int inode_address, char *inode_parent,  char *in
     char *content_split = malloc(sizeof(char) * 20);
     char *content1 = malloc(sizeof(char) * 10);
     char *content2 = malloc(sizeof(char) * 10);
-    memset(content_split, 0 ,sizeof(content_split));
-    memset(content1, 0 ,sizeof(content_split));
-    memset(content2, 0 ,sizeof(content_split));
+    memset(content_split, 0 ,20);
+    memset(content1, 0 ,10);
+    memset(content2, 0 ,10);
 
     content_split = content;
 
@@ -421,50 +419,50 @@ void writeFile(char *file_name, int inode_address, char *inode_parent,  char *in
 
         if((content_size > 10) && (content_size <= 20)){
 
-        tmp1 = checkFreeSpaceMap(disk);
-        printf("block_id1: %d\n", tmp1);
+            tmp1 = checkFreeSpaceMap(disk);
+            printf("block_id1: %d\n", tmp1);
 
-        block_address1 = (tmp1 * BLOCK_SIZE)  + BEGIN_BLOCK;
-        printf("block_address1: %d\n", block_address1);
-        
-        tmp2 = checkFreeSpaceMap(disk);
-        printf("block_id2: %d\n", tmp2);
+            block_address1 = (tmp1 * BLOCK_SIZE)  + BEGIN_BLOCK;
+            printf("block_address1: %d\n", block_address1);
+            
+            tmp2 = checkFreeSpaceMap(disk);
+            printf("block_id2: %d\n", tmp2);
 
-        block_address2 = (tmp2 * BLOCK_SIZE)  + BEGIN_BLOCK;
-        printf("block_address2: %d\n", block_address2);
+            block_address2 = (tmp2 * BLOCK_SIZE)  + BEGIN_BLOCK;
+            printf("block_address2: %d\n", block_address2);
 
-        sprintf(block_id1, "%02d", tmp1);
-        sprintf(block_id2, "%02d", tmp2);
-        strcat(block_id1, "11");
-        strcat(block_id2, "11");
+            sprintf(block_id1, "%02d", tmp1);
+            sprintf(block_id2, "%02d", tmp2);
+            strcat(block_id1, "11");
+            strcat(block_id2, "11");
 
-        fseek(fp, inode_address, SEEK_SET);
-        fputs(inode_parent, fp);                            // inode_parent
-        fseek(fp, inode_address + INODE_ID, SEEK_SET);
-        fputs(inode_id, fp);                                // inode_id
-        fseek(fp, inode_address + INODE_NAME, SEEK_SET);
-        fputs(file_name, fp);                               // inode_name
-        fseek(fp, inode_address + INODE_DATE, SEEK_SET);
-        fputs(str, fp);                                     // inode_date
-        fseek(fp, inode_address + INODE_BLOCK1, SEEK_SET);
-        fputs(block_id1 ,fp);
-        fseek(fp, inode_address + INODE_BLOCK2, SEEK_SET);
-        fputs(block_id2 ,fp);
+            fseek(fp, inode_address, SEEK_SET);
+            fputs(inode_parent, fp);                            // inode_parent
+            fseek(fp, inode_address + INODE_ID, SEEK_SET);
+            fputs(inode_id, fp);                                // inode_id
+            fseek(fp, inode_address + INODE_NAME, SEEK_SET);
+            fputs(file_name, fp);                               // inode_name
+            fseek(fp, inode_address + INODE_DATE, SEEK_SET);
+            fputs(str, fp);                                     // inode_date
+            fseek(fp, inode_address + INODE_BLOCK1, SEEK_SET);
+            fputs(block_id1 ,fp);
+            fseek(fp, inode_address + INODE_BLOCK2, SEEK_SET);
+            fputs(block_id2 ,fp);
 
-        printf("content_split: %s\n", content_split);
+            printf("content_split: %s\n", content_split);
 
-        memcpy(content1, &content_split[0], 10);
+            memcpy(content1, &content_split[0], 10);
 
-        fprintf(stderr, "content1: %s\n", content1);
+            fprintf(stderr, "content1: %s\n", content1);
 
-        memcpy(content2, &content_split[10], 10);
+            memcpy(content2, &content_split[10], 10);
 
-        fprintf(stderr,"content2: %s\n", content2);
+            fprintf(stderr,"content2: %s\n", content2);
 
-        fseek(fp, block_address1, SEEK_SET);
-        fputs(content1, fp);                            // write block 1
-        fseek(fp, block_address2, SEEK_SET);
-        fputs(content2, fp);                            // write block 2   
+            fseek(fp, block_address1, SEEK_SET);
+            fputs(content1, fp);                            // write block 1
+            fseek(fp, block_address2, SEEK_SET);
+            fputs(content2, fp);                            // write block 2   
 
         } else if(content_size <= 10){
 
