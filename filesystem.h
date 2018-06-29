@@ -41,6 +41,8 @@ void bootLoader(char *disk);
 void setPosition(char *disk);
 void createDir(char *disk, char *path);
 void createFile(char *disk, char *file_name);
+void writeDir(int inode_address, char *inode_parent,  char *inode_id);
 
 char *checkDir(char *disk, char *path);
-char *checkInodeMap(char *disk);
+int checkInodeMap(char *disk);
+char *getInodeId(int inode_address);
