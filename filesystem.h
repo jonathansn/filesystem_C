@@ -27,7 +27,9 @@
 #define INODE_NAME              4
 #define INODE_NAME_SIZE         20
 #define INODE_DATE              24
-#define INODE_BLOCK             32
+#define INODE_BLOCK1            32
+#define INODE_BLOCK2            36
+#define INODE_BLOCK_SIZE        4
 
 #define INODE_MAP_MAX           50          
 
@@ -42,6 +44,7 @@ void setPosition(char *disk);
 void createDir(char *disk, char *path);
 void createFile(char *disk, char *file_name);
 void writeDir(int inode_address, char *inode_parent,  char *inode_id);
+void writeInodeParent(char *inode_parent, char *inode_son);
 
 char *checkDir(char *disk, char *path);
 int checkInodeMap(char *disk);

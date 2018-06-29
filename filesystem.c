@@ -66,8 +66,8 @@ int main(int argc, char *argv[]){
    }
 
     bootLoader(disk);
-    createDir(disk, "raiz/user");
-    createDir(disk, "home/user");
+
+    createDir(disk, "raiz/home");
        
 }
 
@@ -94,12 +94,42 @@ void bootLoader(char *disk){
         fputs("0001raiz",fp);
         fseek(fp, BEGIN_INODE+INODE_DATE, SEEK_SET);
         fputs("10102010",fp);
-        fseek(fp, BEGIN_INODE+INODE_BLOCK, SEEK_SET);
+        fseek(fp, BEGIN_INODE+INODE_BLOCK1, SEEK_SET);
         fputs("00000000",fp);
         fclose(fp);
     } else {
         printf("Error while trying to open disk!\n");
     }
+}
+
+void createDir(char *disk, char *path){
+
+    int pos;
+    char *inode_parent;
+    int inode_address;
+    char *inode_id;
+    int tmp;
+
+    pos = positionMap(disk, BEGIN_INODEMAP, END_INODEMAP);
+
+    inode_parent = checkDir(disk, path);
+
+    if(inode_parent == "00"){
+        printf("This directory does not exist!\n");
+    } else {
+
+        printf("Found directory\n");
+        fprintf(stderr, "inode_parent_id: %s\n", inode_parent);
+
+        inode_address = checkInodeMap(disk);
+        fprintf(stderr, "inode_adress: %d\n", inode_address);
+        
+        inode_id = getInodeId(inode_address);
+        fprintf(stderr, "inode_id: %s\n", inode_id);
+
+        writeDir(inode_address, inode_parent, inode_id);
+    }
+
 }
 
 int positionMap(char *disk , int posBegin, int posEnd){
@@ -134,37 +164,6 @@ int positionMap(char *disk , int posBegin, int posEnd){
         printf("Error while trying to access disk!\n");
         fclose(fp);
         return -1;
-    }
-
-}
-
-void createDir(char *disk, char *path){
-
-    int pos;
-    char *inode_parent;
-    int inode_address;
-    char *inode_id;
-    int tmp;
-
-    pos = positionMap(disk, BEGIN_INODEMAP, END_INODEMAP);
-
-    inode_parent = checkDir(disk, path);
-
-    if(inode_parent == "00"){
-        printf("This directory does not exist!\n");
-    } else {
-
-        printf("Found directory\n");
-        fprintf(stderr, "inode_parent: %s\n", inode_parent);
-
-        inode_address = checkInodeMap(disk);
-        fprintf(stderr, "inode_adress: %d\n", inode_address);
-        
-        inode_id = getInodeId(inode_address);
-        fprintf(stderr, "inode_id: %s\n", inode_id);
-
-        writeDir(inode_address, inode_parent, inode_id);
-
     }
 
 }
@@ -260,20 +259,47 @@ char *getInodeId(int inode_address){
 
 void writeDir(int inode_address, char *inode_parent,  char *inode_id){
 
-    FILE *fp;
-    fp = fopen(disk, "rb+");
+        writeInodeParent(inode_parent, inode_id);
+
+        FILE *fp;
+        fp = fopen(disk, "rb+");
 
         fseek(fp, inode_address, SEEK_SET);
         fputs(inode_parent, fp);                            // inode_parent
         fseek(fp, inode_address + INODE_ID, SEEK_SET);
         fputs(inode_id, fp);                                // inode_id
         fseek(fp, inode_address + INODE_NAME, SEEK_SET);
-        fputs("home", fp);                                // inode_name
+        fputs("home", fp);                                  // inode_name
         fseek(fp, inode_address + INODE_DATE, SEEK_SET);
         fputs("25011991", fp);                              // inode_name
-        fseek(fp, inode_address + INODE_BLOCK, SEEK_SET);
-        fputs("00000000",fp);
+        fseek(fp, inode_address + INODE_BLOCK1, SEEK_SET);
+        fputs("0000",fp);
+        fseek(fp, inode_address + INODE_BLOCK2, SEEK_SET);
+        fputs("0000",fp);        
 
     fclose(fp);
+}
 
+void writeInodeParent(char *inode_parent, char *inode_son){
+
+    FILE *fp;
+    fp = fopen(disk, "rb+");
+
+    int inode_address;
+    inode_address = atoi(inode_parent);
+    inode_address = ((inode_address - 1) * INODE_BYTE) + BEGIN_INODE;    
+
+    char *tmp = malloc(sizeof(char) * INODE_ID_SIZE);
+    char *block = malloc(sizeof(char) * INODE_BLOCK_SIZE);
+
+    fseek(fp, inode_address + INODE_BLOCK1, SEEK_SET);
+    fgets(block, INODE_BLOCK_SIZE+1, fp);
+    strtok(block, "\n");
+
+        if(!strcmp(block, "0000")){
+            fseek(fp, inode_address + INODE_BLOCK1, SEEK_SET);
+            fputs(inode_son, fp);
+            printf("fputs %s:%d\n",inode_son, inode_address + INODE_BLOCK1);
+            fclose(fp);
+        }
 }
