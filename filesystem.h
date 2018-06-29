@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <time.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -43,7 +44,7 @@ void bootLoader(char *disk);
 void setPosition(char *disk);
 int createDir(char *disk, char *path);
 void createFile(char *disk, char *file_name);
-void writeDir(int inode_address, char *inode_parent,  char *inode_id);
+void writeDir(char *dirname, int inode_address, char *inode_parent,  char *inode_id);
 void writeInodeParent(char *inode_parent, char *inode_son);
 
 char *checkDir(char *disk, char *path);

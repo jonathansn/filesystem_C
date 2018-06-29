@@ -113,6 +113,8 @@ int createDir(char *disk, char *path){
     int inode_address;
     char *inode_id;
     int tmp;
+    char *dir_name;
+    char *ptr = malloc(sizeof((char) * path));
 
     pos = positionMap(disk, BEGIN_INODEMAP, END_INODEMAP);
     printf("pos: %d\n", pos);
@@ -126,6 +128,12 @@ int createDir(char *disk, char *path){
     } else {
 
         printf("Found directory\n");
+
+        ptr = strdup(path);
+        dir_name = strsep(&ptr, "/");
+        dir_name = strsep(&ptr, "/");
+            printf("dir_name: %s\n", dir_name);
+
         fprintf(stderr, "inode_parent_id: %s\n", inode_parent);
 
         inode_address = checkInodeMap(disk);
@@ -134,7 +142,7 @@ int createDir(char *disk, char *path){
         inode_id = getInodeId(inode_address);
         fprintf(stderr, "inode_id: %s\n", inode_id);
 
-        writeDir(inode_address, inode_parent, inode_id);
+        writeDir(dir_name, inode_address, inode_parent, inode_id);
 
         return 1;
     }
@@ -204,7 +212,6 @@ char *checkDir(char *disk, char *path){
         ptr = strdup(path);
         if(token = strsep(&ptr, delimiters)){
             dir = token;
-            printf("DIR: %s\n",dir);         
             
             for(int i=BEGIN_INODE; i<=END_INODE; i+=INODE_BYTE){
                 fseek(fp, i + INODE_NAME, SEEK_SET);
@@ -267,7 +274,15 @@ char *getInodeId(int inode_address){
 
 }
 
-void writeDir(int inode_address, char *inode_parent,  char *inode_id){
+void writeDir(char *dir_name, int inode_address, char *inode_parent,  char *inode_id){
+
+    time_t rawtime;
+    struct tm * timeinfo;
+    char str[60];
+
+    time ( &rawtime );
+    timeinfo = localtime ( &rawtime );
+    strftime(str, sizeof(str) , "%d%m%Y", timeinfo);
 
         writeInodeParent(inode_parent, inode_id);
 
@@ -279,9 +294,9 @@ void writeDir(int inode_address, char *inode_parent,  char *inode_id){
         fseek(fp, inode_address + INODE_ID, SEEK_SET);
         fputs(inode_id, fp);                                // inode_id
         fseek(fp, inode_address + INODE_NAME, SEEK_SET);
-        fputs("home", fp);                                  // inode_name
+        fputs(dir_name, fp);                                  // inode_name
         fseek(fp, inode_address + INODE_DATE, SEEK_SET);
-        fputs("25011991", fp);                              // inode_name
+        fputs(str, fp);                                     // inode_date
         fseek(fp, inode_address + INODE_BLOCK1, SEEK_SET);
         fputs("0000",fp);
         fseek(fp, inode_address + INODE_BLOCK2, SEEK_SET);
