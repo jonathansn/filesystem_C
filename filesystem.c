@@ -67,17 +67,21 @@ int main(int argc, char *argv[]){
 
     bootLoader(disk);
 
+    // trocar para receber comandos (PIPE)
+
     if(createDir(disk, "raiz/home") == 1){
         printf("Directory created successfully!\n");
     } else {
         printf("Error while trying to create directory!\n");
     }
 
-    if(createFile(disk, "home/teste.txt", "abcdefgh") == 1){
+    if(createFile(disk, "home/teste.txt", "abcdefghijklmn") == 1){
         printf("File created successfully!\n");
     } else {
         printf("Error while trying to create file!\n");
     }
+
+    //
        
 }
 
@@ -388,6 +392,14 @@ void writeFile(char *file_name, int inode_address, char *inode_parent,  char *in
     char *block_id1 = malloc(sizeof(char) * INODE_ID_SIZE);
     char *block_id2 = malloc(sizeof(char) * INODE_ID_SIZE);
     int content_size;
+    char *content_split = malloc(sizeof(char) * 20);
+    char *content1 = malloc(sizeof(char) * 10);
+    char *content2 = malloc(sizeof(char) * 10);
+    memset(content_split, 0 ,sizeof(content_split));
+    memset(content1, 0 ,sizeof(content_split));
+    memset(content2, 0 ,sizeof(content_split));
+
+    content_split = content;
 
     time ( &rawtime );
     timeinfo = localtime ( &rawtime );
@@ -412,7 +424,7 @@ void writeFile(char *file_name, int inode_address, char *inode_parent,  char *in
         tmp2 = checkFreeSpaceMap(disk);
         printf("block_id2: %d\n", tmp2);
 
-        block_address1 = (tmp2 * BLOCK_SIZE)  + BEGIN_BLOCK;
+        block_address2 = (tmp2 * BLOCK_SIZE)  + BEGIN_BLOCK;
         printf("block_address2: %d\n", block_address2);
 
         sprintf(block_id1, "%d", tmp1);
@@ -433,10 +445,20 @@ void writeFile(char *file_name, int inode_address, char *inode_parent,  char *in
         fseek(fp, inode_address + INODE_BLOCK2, SEEK_SET);
         fputs(block_id2 ,fp);
 
+        printf("content_split: %s\n", content_split);
+
+        memcpy(content1, &content_split[0], 10);
+
+        fprintf(stderr, "content1: %s\n", content1);
+
+        memcpy(content2, &content_split[10], 10);
+
+        fprintf(stderr,"content2: %s\n", content2);
+
         fseek(fp, block_address1, SEEK_SET);
-        fputs(inode_parent, fp);                            // write block 1
+        fputs(content1, fp);                            // write block 1
         fseek(fp, block_address2, SEEK_SET);
-        fputs(inode_parent, fp);                            // write block 2   
+        fputs(content2, fp);                            // write block 2   
 
         } else if(content_size <= 10){
 
