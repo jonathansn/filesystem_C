@@ -17,6 +17,8 @@
 #define BEGIN_INODEMAP          2600
 #define END_INODEMAP            2649    // 50B
 
+#define BLOCK_SIZE              10      // 10B
+
 #define INODE_MAX               50      // 50
 #define INODE_SIZE              2000    // 2KB
 #define INODE_BYTE              40      // 40B
@@ -43,12 +45,13 @@ int positionMap(char *disk , int posBegin, int posEnd);
 void bootLoader(char *disk);
 void setPosition(char *disk);
 int createDir(char *disk, char *path);
-int createFile(char *disk, char *path);
+int createFile(char *disk, char *path, char *content);
 void writeDir(char *dir_name, int inode_address, char *inode_parent,  char *inode_id);
-void writeFile(char *file_name, int inode_address, char *inode_parent,  char *inode_id);
+void writeFile(char *file_name, int inode_address, char *inode_parent,  char *inode_id, char *content);
 void writeInodeParentDir(char *inode_parent, char *inode_son);
 void writeInodeParentFile(char *inode_parent, char *inode_son);
 
 char *checkDir(char *disk, char *path);
 int checkInodeMap(char *disk);
+int checkFreeSpaceMap(char *disk);
 char *getInodeId(int inode_address);
