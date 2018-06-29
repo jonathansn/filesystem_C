@@ -75,7 +75,13 @@ int main(int argc, char *argv[]){
         printf("Error while trying to create directory!\n");
     }
 
-    if(createFile(disk, "home/teste.txt", "abcdefghijklmn") == 1){
+    if(createFile(disk, "home/teste.txt", "abcdef") == 1){
+        printf("File created successfully!\n");
+    } else {
+        printf("Error while trying to create file!\n");
+    }
+
+    if(createFile(disk, "home/teste1.txt", "testando") == 1){
         printf("File created successfully!\n");
     } else {
         printf("Error while trying to create file!\n");
@@ -427,8 +433,8 @@ void writeFile(char *file_name, int inode_address, char *inode_parent,  char *in
         block_address2 = (tmp2 * BLOCK_SIZE)  + BEGIN_BLOCK;
         printf("block_address2: %d\n", block_address2);
 
-        sprintf(block_id1, "%d", tmp1);
-        sprintf(block_id2, "%d", tmp2);
+        sprintf(block_id1, "%02d", tmp1);
+        sprintf(block_id2, "%02d", tmp2);
         strcat(block_id1, "11");
         strcat(block_id2, "11");
 
@@ -468,7 +474,7 @@ void writeFile(char *file_name, int inode_address, char *inode_parent,  char *in
             block_address1 = (tmp1 * BLOCK_SIZE)  + BEGIN_BLOCK;
             printf("block_address1: %d\n", block_address1);
 
-            sprintf(block_id1, "%d", tmp1);
+            sprintf(block_id1, "%02d", tmp1);
             strcat(block_id1, "11");
 
             fseek(fp, inode_address, SEEK_SET);
