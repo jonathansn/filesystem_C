@@ -41,7 +41,7 @@ int nextPosition(char *disk);
 int positionMap(char *disk , int posBegin, int posEnd);
 void bootLoader(char *disk);
 void setPosition(char *disk);
-void createDir(char *disk, char *path);
+int createDir(char *disk, char *path);
 void createFile(char *disk, char *file_name);
 void writeDir(int inode_address, char *inode_parent,  char *inode_id);
 void writeInodeParent(char *inode_parent, char *inode_son);
