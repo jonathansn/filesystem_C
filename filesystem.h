@@ -43,9 +43,11 @@ int positionMap(char *disk , int posBegin, int posEnd);
 void bootLoader(char *disk);
 void setPosition(char *disk);
 int createDir(char *disk, char *path);
-void createFile(char *disk, char *file_name);
-void writeDir(char *dirname, int inode_address, char *inode_parent,  char *inode_id);
-void writeInodeParent(char *inode_parent, char *inode_son);
+int createFile(char *disk, char *path);
+void writeDir(char *dir_name, int inode_address, char *inode_parent,  char *inode_id);
+void writeFile(char *file_name, int inode_address, char *inode_parent,  char *inode_id);
+void writeInodeParentDir(char *inode_parent, char *inode_son);
+void writeInodeParentFile(char *inode_parent, char *inode_son);
 
 char *checkDir(char *disk, char *path);
 int checkInodeMap(char *disk);
